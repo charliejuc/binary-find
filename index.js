@@ -1,6 +1,15 @@
 'use strict'
 
-const data = [5, 50, 2, 1, 4, 2, 8, 5, 77, 100, 0, 12]
+// const data = [5, 50, 2, 1, 4, 2, 8, 5, 77, 100, 0, 12, 312, -3, 54]
+
+const genNumberArray = (arrayLength, cb) => Array.from(Array(arrayLength), cb)
+const size = 10_000
+
+console.time('Fill Array')
+const randomInteger = (num) => Math.floor(Math.random() * num)
+const data = genNumberArray(size, () => randomInteger(size))
+console.timeEnd('Fill Array')
+
 const tree = []
 
 const position = {
@@ -8,31 +17,29 @@ const position = {
     left: 1,
     right: 2
 }
-const whichIsLessDeep = (tree, depth = 0) => {
+const getLessDeepPath = (tree, path) => {
+    path = path || []
     const leftTree = tree[position.left]
     const rightTree = tree[position.right]
 
     if (leftTree.length === 0) {
-        return [position.left, depth]
+        return [position.left, ...path]
     }
 
     if (rightTree.length === 0) {
-        return [position.right, depth]
+        return [position.right, ...path]
     }
 
-    depth += 1
+    const leftPath = getLessDeepPath(leftTree, path)
+    const rightPath = getLessDeepPath(rightTree, path)
 
-    const [, leftDepth] = whichIsLessDeep(leftTree, depth)
-    const [, rightDepth] = whichIsLessDeep(rightTree, depth)
-
-    if (leftDepth > rightDepth) {
-        return [position.right, rightDepth]
+    if (leftPath.length > rightPath.length) {
+        return [position.right, ...rightPath]
     }
 
-    return [position.left, leftDepth]
-
+    return [position.left, ...leftPath]
 }
-const insertNode = (tree, node) => {
+const insertNode = (tree, node, lessDeepPath = null) => {
     if (tree.length === 0) {
         tree.push(node, [], [])
         return tree
@@ -41,27 +48,38 @@ const insertNode = (tree, node) => {
     if (node < tree[position.node]) {
         const oldNode = tree[position.node]
         tree[position.node] = node
-        return insertNode(tree, oldNode)
+        return insertNode(tree, oldNode, lessDeepPath)
     }
 
-    if (whichIsLessDeep(tree)[0] === position.left) {
-        tree[position.left] = insertNode(tree[position.left], node)
-    } else {
-        tree[position.right] = insertNode(tree[position.right], node)
+    lessDeepPath = lessDeepPath || getLessDeepPath(tree)
+
+    if (lessDeepPath.length === 0) {
+        return insertNode(tree, node)
     }
+
+    const nextStep = lessDeepPath[0]
+    tree[nextStep] = insertNode(tree[nextStep], node, lessDeepPath.slice(1))
 
     return tree
 }
 
-console.log(insertNode(tree, data[0]))
-console.log(insertNode(tree, data[1]))
-console.log(insertNode(tree, data[2]))
-console.log(insertNode(tree, data[3]))
-console.log(insertNode(tree, data[4]))
-console.log(insertNode(tree, data[5]))
-console.log(insertNode(tree, data[6]))
-console.log(insertNode(tree, data[7]))
-console.log(insertNode(tree, data[8]))
-console.log(insertNode(tree, data[9]))
-console.log(insertNode(tree, data[10]))
-console.log(insertNode(tree, data[11]))
+console.time('Create Index')
+for (const element of data) {
+    insertNode(tree, element)
+}
+console.timeEnd('Create Index')
+// console.log(insertNode(tree, data[0]))
+// console.log(insertNode(tree, data[1]))
+// console.log(insertNode(tree, data[2]))
+// console.log(insertNode(tree, data[3]))
+// console.log(insertNode(tree, data[4]))
+// console.log(insertNode(tree, data[5]))
+// console.log(insertNode(tree, data[6]))
+// console.log(insertNode(tree, data[7]))
+// console.log(insertNode(tree, data[8]))
+// console.log(insertNode(tree, data[9]))
+// console.log(insertNode(tree, data[10]))
+// console.log(insertNode(tree, data[11]))
+// console.log(insertNode(tree, data[12]))
+// console.log(insertNode(tree, data[13]))
+// console.log(insertNode(tree, data[14]))
