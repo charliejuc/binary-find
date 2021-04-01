@@ -40,6 +40,9 @@ const setMeta = (tree) => {
         }
     }
 }
+const increaseNodeLength = (treeMETA, nextStep) => {
+    treeMETA.nodeLength[nextStep === position.left ? 'left' : 'right'] += 1
+}
 
 const position = {
     node: 0,
@@ -47,50 +50,56 @@ const position = {
     right: 2
 }
 const getLessDeepPath = trampoline((tree, path) => {
-    path = path || []
-    const leftTree = tree[position.left]
-    const rightTree = tree[position.right]
+    setMeta(tree)
 
-    if (leftTree.length === 0) {
+    path = path || []
+    const leftNodeLength = tree[META].nodeLength.left
+    const rightNodeLength = tree[META].nodeLength.right
+
+    if (leftNodeLength === 0) {
         return [...path, position.left]
     }
 
-    if (rightTree.length === 0) {
+    if (rightNodeLength === 0) {
         return [...path, position.right]
     }
 
-    if (tree[META].nodeLength.left > tree[META].nodeLength.right) {
-        return () => getLessDeepPath(rightTree, [...path, position.right])
+    if (rightNodeLength < leftNodeLength) {
+        return () => getLessDeepPath(tree[position.right], [...path, position.right])
     }
 
-    return () => getLessDeepPath(leftTree, [...path, position.left])
+    return () => getLessDeepPath(tree[position.left], [...path, position.left])
 })
-const insertNode = trampoline((tree, node, lessDeepPath = null) => {
+const insertNode = trampoline((tree, node, lessDeepPath) => {
+    lessDeepPath = lessDeepPath || null
+    // push when target node is reached
     if (tree.length === 0) {
         tree.push(node, [], [])
-        return tree
+        return
     }
 
+    /*
+        replace current tree node when is less than passed node
+        and call insertNode with replaced tree node
+    */
     if (node < tree[position.node]) {
         const oldNode = tree[position.node]
         tree[position.node] = node
         return () => insertNode(tree, oldNode, lessDeepPath)
     }
 
-    setMeta(tree)
     lessDeepPath = lessDeepPath || getLessDeepPath(tree)
 
     if (lessDeepPath.length === 0) {
-        return () => insertNode(tree, node)
+        return () => insertNode(tree, node, lessDeepPath)
     }
 
+    // take a step using lessDeepPath
     return () => {
         const nextStep = lessDeepPath[0]
 
-        tree[nextStep] = insertNode(tree[nextStep], node, lessDeepPath.slice(1))
-        tree[META].nodeLength[nextStep === position.left ? 'left' : 'right'] += 1
-
-        return tree
+        insertNode(tree[nextStep], node, lessDeepPath.slice(1))
+        increaseNodeLength(tree[META], nextStep)
     }
 })
 
@@ -100,18 +109,27 @@ for (const element of data) {
 }
 console.timeEnd('Create Index')
 console.log(tree[META])
-// console.log(insertNode(tree, data[0]))
-// console.log(insertNode(tree, data[1]))
-// console.log(insertNode(tree, data[2]))
-// console.log(insertNode(tree, data[3]))
-// console.log(insertNode(tree, data[4]))
-// console.log(insertNode(tree, data[5]))
-// console.log(insertNode(tree, data[6]))
-// console.log(insertNode(tree, data[7]))
-// console.log(insertNode(tree, data[8]))
-// console.log(insertNode(tree, data[9]))
-// console.log(insertNode(tree, data[10]))
-// console.log(insertNode(tree, data[11]))
-// console.log(insertNode(tree, data[12]))
-// console.log(insertNode(tree, data[13]))
-// console.log(insertNode(tree, data[14]))
+// insertNode(tree, data[0])
+// console.log(tree)
+// insertNode(tree, data[1])
+// console.log(tree)
+// insertNode(tree, data[2])
+// console.log(tree)
+// insertNode(tree, data[3])
+// console.log(tree)
+// insertNode(tree, data[4])
+// console.log(tree)
+// insertNode(tree, data[5])
+// console.log(tree)
+// insertNode(tree, data[6])
+// console.log(tree)
+// insertNode(tree, data[7])
+// console.log(tree)
+// insertNode(tree, data[8])
+// console.log(tree)
+// insertNode(tree, data[9])
+// console.log(tree)
+// insertNode(tree, data[10])
+// console.log(tree)
+// insertNode(tree, data[11])
+// console.log(tree)
