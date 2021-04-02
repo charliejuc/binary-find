@@ -4,8 +4,9 @@ const {position} = require('./config')
 const {insertNode} = require('./create')
 // const data = [5, 50, 2, 1, 4, 2, 8, 5, 77, 100, 0, 12, 312, -3, 54]
 
+const genRandomInt = max => Math.floor(Math.random() + max)
 const genNumberArray = (arrayLength, cb) => Array.from(Array(arrayLength), cb)
-const size = 1_000_000
+const size = 500_000
 
 console.time('Fill Array')
 const randomInteger = (num) => Math.floor(Math.random() * num)
@@ -68,22 +69,46 @@ sequentialSteps.push(steps)
 steps = 0
 console.timeEnd('Find Node')
 
-console.time('Steps loop')
-let i = 1_000
-while(i !== 0) {
-    findNode(tree, getRandomValue())
-    treeSteps.push(steps)
-    steps = 0
+console.time('Insert in large tree')
+insertNode(tree, genRandomInt(222214232134))
+console.timeEnd('Insert in large tree')
 
-    findSequential(data, getRandomValue())
-    sequentialSteps.push(steps)
-    steps = 0
+console.time('Push in large array')
+data.push(genRandomInt(222214232134))
+console.timeEnd('Push in large array')
 
-    --i
-}
-console.timeEnd('Steps loop')
+console.time('Unshift in large array')
+data.unshift(genRandomInt(222214232134))
+console.timeEnd('Unshift in large array')
 
-console.log({
-    treeAvg: treeSteps.reduce((acc, current) => acc + current) / treeSteps.length / 1000,
-    sequentialAvg: sequentialSteps.reduce((acc, current) => acc + current) / sequentialSteps.length / 1000
-})
+console.time('Insert in large tree')
+insertNode(tree, genRandomInt(222214232134))
+console.timeEnd('Insert in large tree')
+
+console.time('Push in large array')
+data.push(genRandomInt(222214232134))
+console.timeEnd('Push in large array')
+
+console.time('Unshift in large array')
+data.unshift(genRandomInt(222214232134))
+console.timeEnd('Unshift in large array')
+
+// console.time('Steps loop')
+// let i = 1_000
+// while(i !== 0) {
+//     findNode(tree, getRandomValue())
+//     treeSteps.push(steps)
+//     steps = 0
+//
+//     findSequential(data, getRandomValue())
+//     sequentialSteps.push(steps)
+//     steps = 0
+//
+//     --i
+// }
+// console.timeEnd('Steps loop')
+//
+// console.log({
+//     treeAvg: treeSteps.reduce((acc, current) => acc + current) / treeSteps.length / 1000,
+//     sequentialAvg: sequentialSteps.reduce((acc, current) => acc + current) / sequentialSteps.length / 1000
+// })

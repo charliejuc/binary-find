@@ -53,6 +53,27 @@ const getLessDeepPath = trampoline((tree, path) => {
 
     return () => getLessDeepPath(tree[position.left], [...path, position.left])
 })
+
+const tryLeftRightRotation = (tree) => {
+    const leftTree = tree[position.left]
+    const rightTree = tree[position.right]
+
+    if (leftTree.length === 0 || rightTree.length === 0) {
+        return
+    }
+
+    if (leftTree[position.node] <= rightTree[position.node]) {
+        return
+    }
+
+    tree[position.right] = leftTree
+    tree[position.left] = rightTree
+
+    const leftNodeLength = tree[META].nodeLength.left
+    tree[META].nodeLength.left = tree[META].nodeLength.right
+    tree[META].nodeLength.right = leftNodeLength
+}
+
 const insertNode = trampoline((tree, node, lessDeepPath) => {
     lessDeepPath = lessDeepPath || null
     // push when target node is reached
@@ -83,6 +104,10 @@ const insertNode = trampoline((tree, node, lessDeepPath) => {
 
         insertNode(tree[nextStep], node, lessDeepPath.slice(1))
         increaseNodeLength(tree[META], nextStep)
+
+        if (lessDeepPath.length === 1) {
+            tryLeftRightRotation(tree)
+        }
     }
 })
 
